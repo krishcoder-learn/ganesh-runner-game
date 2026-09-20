@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://localhost:8080/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ganesh: Modak Run - 3D Endless Runner</title>
+  <link rel="stylesheet" href="./Ganesh_ Modak Run - 3D Endless Runner_files/styles.css">
+  <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%22.9em%22 font-size=%2290%22&gt;%F0%9F%AA%94&lt;/text&gt;&lt;/svg&gt;">
+</head>
+<body>
+  <div id="game-container">
+    <!-- WebGL Canvas for 3D Game -->
+    <canvas id="webgl-canvas" width="1920" height="978" style="width: 1024px; height: 522px;"></canvas>
+
+    <!-- In-Game HUD -->
+    <div id="hud" style="display: none;">
+      <div class="hud-top-bar">
+        <div class="hud-panel score-box">
+          <span class="hud-label">Score</span>
+          <div style="display: flex; align-items: baseline;">
+            <span id="score-val" class="hud-value">37,642</span>
+            <span id="multiplier-badge" class="multiplier-badge">x2.9</span>
+          </div>
+        </div>
+
+        <div class="hud-panel distance-box">
+          <span class="hud-label">Distance</span>
+          <span id="distance-val" class="hud-value">1057m</span>
+        </div>
+
+        <div class="hud-panel modak-box">
+          <svg class="modak-icon-small" viewBox="0 0 100 100">
+            <defs>
+              <lineargradient id="modakGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fff6d1"></stop>
+                <stop offset="50%" stop-color="#ffd034"></stop>
+                <stop offset="100%" stop-color="#e67e22"></stop>
+              </lineargradient>
+            </defs>
+            <path d="M50 10 C53 25, 80 50, 80 75 C80 90, 65 95, 50 95 C35 95, 20 90, 20 75 C20 50, 47 25, 50 10 Z" fill="url(#modakGold)" stroke="#d35400" stroke-width="3"></path>
+            <path d="M50 10 Q60 55 65 88" stroke="#e67e22" stroke-width="2.5" fill="none"></path>
+            <path d="M50 10 Q40 55 35 88" stroke="#e67e22" stroke-width="2.5" fill="none"></path>
+            <circle cx="50" cy="10" r="4" fill="#e74c3c"></circle>
+          </svg>
+          <span id="modak-val" class="hud-value">112</span>
+        </div>
+
+        <button id="pause-btn" class="pause-btn" title="Pause (Esc / P)" fdprocessedid="v6mksd">⏸</button>
+      </div>
+
+      <!-- Chase Meter for Maa Parvati -->
+      <div id="chase-meter" class="chase-meter-container chase-warning">
+        <div class="chase-header">
+          <span>🪔 Maa Parvati Proximity</span>
+          <span id="chase-dist-val">0m Behind</span>
+        </div>
+        <div class="chase-bar-bg">
+          <div id="chase-bar-fill" class="chase-bar-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Combo Alert Badge -->
+      <div id="combo-container" class="">
+        <div id="combo-text" class="combo-badge">10x Modak Combo!</div>
+      </div>
+
+      <!-- Interactive Tutorial Prompt -->
+      <div id="tutorial-bubble" class="tutorial-bubble">
+        <span id="tutorial-icon">⚡</span>
+        <span id="tutorial-text">Activate Divine Abilities via keys 1-5 or bottom hotbar buttons!</span>
+      </div>
+
+      <!-- Mobile Touch Controls -->
+      <div id="touch-controls" class="touch-controls">
+        <div style="display: flex; gap: 14px;">
+          <button id="touch-left" class="touch-btn">◀</button>
+          <button id="touch-right" class="touch-btn">▶</button>
+        </div>
+        <div style="display: flex; gap: 14px;">
+          <button id="touch-slide" class="touch-btn">▼</button>
+          <button id="touch-jump" class="touch-btn">▲</button>
+        </div>
+      </div>
+
+      <!-- Abilities Hotbar -->
+      <div class="hud-bottom-bar">
+        <div class="abilities-bar">
+          <div class="ability-btn" id="ability-btn-magnet" title="Modak Magnet [1]" style="opacity: 1;">
+            <span class="ability-key">1</span>
+            <span class="ability-icon">🧲</span>
+            <span class="ability-name">Magnet</span>
+            <div class="ability-cooldown-overlay" id="cd-magnet" style="height: 0%;"></div>
+          </div>
+          <div class="ability-btn" id="ability-btn-shield" title="Divine Shield [2]" style="opacity: 1;">
+            <span class="ability-key">2</span>
+            <span class="ability-icon">🛡️</span>
+            <span class="ability-name">Shield</span>
+            <div class="ability-cooldown-overlay" id="cd-shield" style="height: 0%;"></div>
+          </div>
+          <div class="ability-btn" id="ability-btn-vighna" title="Vighna-Breaker [3]" style="opacity: 1;">
+            <span class="ability-key">3</span>
+            <span class="ability-icon">🔱</span>
+            <span class="ability-name">Vighna</span>
+            <div class="ability-cooldown-overlay" id="cd-vighna" style="height: 0%;"></div>
+          </div>
+          <div class="ability-btn" id="ability-btn-speed" title="Mushak Dash [4]" style="opacity: 1;">
+            <span class="ability-key">4</span>
+            <span class="ability-icon">⚡</span>
+            <span class="ability-name">Speed</span>
+            <div class="ability-cooldown-overlay" id="cd-speed" style="height: 0%;"></div>
+          </div>
+          <div class="ability-btn" id="ability-btn-mult" title="Modak Multiplier [5]" style="opacity: 1;">
+            <span class="ability-key">5</span>
+            <span class="ability-icon">✨</span>
+            <span class="ability-name">2x Pts</span>
+            <div class="ability-cooldown-overlay" id="cd-mult" style="height: 0%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN MENU -->
+    <div id="menu-main" class="modal-overlay">
+      <div class="menu-card">
+        <div class="menu-decor-top">
+          <div class="menu-decor-line"></div>
+          <span>🕉️ 🪔 🕉️</span>
+          <div class="menu-decor-line"></div>
+        </div>
+        <h1 class="game-title">GANESH:<br>MODAK RUN</h1>
+        <p class="game-subtitle">Divine Festival Endless Runner</p>
+
+        <div class="menu-buttons">
+          <button id="btn-play" class="btn-festive primary" fdprocessedid="nxowth">PLAY RUN</button>
+          <button id="btn-tutorial" class="btn-festive secondary" fdprocessedid="eb6qsd">TUTORIAL &amp; HOW TO PLAY</button>
+          <button id="btn-abilities" class="btn-festive secondary" fdprocessedid="qeyaq6">DIVINE ABILITIES</button>
+          <button id="btn-outfits" class="btn-festive secondary" fdprocessedid="56n7kc">OUTFITS &amp; DHOTIS</button>
+          <button id="btn-highscores" class="btn-festive secondary" fdprocessedid="f8u30m">HIGH SCORES</button>
+          <button id="btn-settings" class="btn-festive secondary" fdprocessedid="te5n9d">SETTINGS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAUSE MENU -->
+    <div id="menu-pause" class="modal-overlay">
+      <div class="menu-card">
+        <div class="menu-decor-top">
+          <span>⏸️</span>
+        </div>
+        <h2 class="modal-title">RUN PAUSED</h2>
+        <div class="menu-buttons">
+          <button id="btn-resume" class="btn-festive primary" fdprocessedid="8d9f5">RESUME</button>
+          <button id="btn-restart-pause" class="btn-festive secondary" fdprocessedid="qu3xos">RESTART RUN</button>
+          <button id="btn-settings-pause" class="btn-festive secondary" fdprocessedid="v2eukb">SETTINGS</button>
+          <button id="btn-quit-pause" class="btn-festive secondary" fdprocessedid="6hwvnd">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER / RUN COMPLETE -->
+    <div id="menu-gameover" class="modal-overlay active">
+      <div class="menu-card">
+        <div class="menu-decor-top">
+          <span>🪔 🌸 🪔</span>
+        </div>
+        <h2 class="game-title" style="font-size: 30px;">RUN COMPLETE!</h2>
+        <p class="inspirational-quote" id="gameover-quote">"Keep running! Your next sweet Modak awaits."</p>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Score</div>
+            <div id="go-score" class="stat-value">37,642</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Best Score</div>
+            <div id="go-best-score" class="stat-value">120,683</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Distance</div>
+            <div id="go-distance" class="stat-value">1057m</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Modaks</div>
+            <div id="go-modaks" class="stat-value">112</div>
+          </div>
+        </div>
+
+        <div class="menu-buttons">
+          <button id="btn-play-again" class="btn-festive primary" fdprocessedid="3n086">PLAY AGAIN</button>
+          <button id="btn-menu-from-go" class="btn-festive secondary" fdprocessedid="a5bei">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TUTORIAL / HOW TO PLAY MODAL -->
+    <div id="menu-howtoplay" class="modal-overlay">
+      <div class="menu-card">
+        <h2 class="modal-title">HOW TO PLAY</h2>
+        <div class="modal-content">
+          <p><strong>🎯 The Quest:</strong> Guide Lord Ganesha as he joyously runs through festive temple streets collecting sacred Modaks!</p><br>
+          <p><strong>🏃 Controls (Desktop):</strong></p>
+          <p>• <strong>A / D</strong> or <strong>Left / Right Arrows</strong>: Change lanes</p>
+          <p>• <strong>W</strong> or <strong>Up Arrow / Space</strong>: Jump over fallen logs and low obstacles</p>
+          <p>• <strong>S</strong> or <strong>Down Arrow</strong>: Slide under flower arches and festive torans</p>
+          <p>• <strong>1 to 5</strong>: Activate Divine Abilities</p><br>
+          <p><strong>📱 Controls (Mobile / Touch):</strong></p>
+          <p>• Swipe <strong>Left/Right</strong>, <strong>Up</strong> (Jump), and <strong>Down</strong> (Slide), or use the on-screen buttons.</p><br>
+          <p><strong>🪔 Maa Parvati Chase Mechanic:</strong></p>
+          <p>Maa Parvati follows Ganesha in a playful chase. If you stumble or hit obstacles, she draws closer! Collect Modaks and maintain a streak to keep a safe, joyful distance!</p>
+        </div>
+        <button id="btn-close-howtoplay" class="btn-festive secondary" fdprocessedid="dqiix">CLOSE</button>
+      </div>
+    </div>
+
+    <!-- ABILITIES CODEX MODAL -->
+    <div id="menu-abilities-codex" class="modal-overlay">
+      <div class="menu-card">
+        <h2 class="modal-title">DIVINE ABILITIES</h2>
+        <div class="modal-content">
+          <p><strong>🧲 1. Modak Magnet (Chumbak):</strong><br>Draws all nearby delicious Modaks directly to Ganesha for 8 seconds.</p><br>
+          <p><strong>🛡️ 2. Divine Shield (Kavach):</strong><br>Summons a sacred golden barrier that absorbs 1 obstacle hit without penalty.</p><br>
+          <p><strong>🔱 3. Vighna-Breaker (Lord of Obstacles):</strong><br>Smashes obstacles in your path into colorful flower petals for 6 seconds!</p><br>
+          <p><strong>⚡ 4. Mushak Speed Dash:</strong><br>Supercharges Ganesha forward with invincibility and doubled score multiplier for 5 seconds.</p><br>
+          <p><strong>✨ 5. Modak Multiplier (Siddhi Bonus):</strong><br>All collected Modaks give 2x points and combo points for 10 seconds.</p>
+        </div>
+        <button id="btn-close-abilities" class="btn-festive secondary" fdprocessedid="163cv">CLOSE</button>
+      </div>
+    </div>
+
+    <!-- OUTFITS SHOP MODAL -->
+    <div id="menu-outfits-shop" class="modal-overlay">
+      <div class="menu-card">
+        <h2 class="modal-title">OUTFITS &amp; DHOTIS</h2>
+        <p style="color: #ffe082; font-size: 13px; margin-bottom: 12px;">
+          Collected Modaks: <strong id="shop-modak-bank">296</strong> 🥟
+        </p>
+        <div class="outfit-grid" id="outfit-grid"><div class="outfit-card selected">
+        <div class="outfit-preview-circle" style="background-color: #f1c40f;"></div>
+        <div class="outfit-title">Pitambari Gold</div>
+        <div class="outfit-cost">
+          ✓ EQUIPPED
+        </div>
+      </div><div class="outfit-card ">
+        <div class="outfit-preview-circle" style="background-color: #b71540;"></div>
+        <div class="outfit-title">Royal Crimson</div>
+        <div class="outfit-cost">
+          🥟 80 Modaks
+        </div>
+      </div><div class="outfit-card ">
+        <div class="outfit-preview-circle" style="background-color: #ecf0f1;"></div>
+        <div class="outfit-title">Kailash White</div>
+        <div class="outfit-cost">
+          🥟 200 Modaks
+        </div>
+      </div><div class="outfit-card ">
+        <div class="outfit-preview-circle" style="background-color: #10ac84;"></div>
+        <div class="outfit-title">Peacock Emerald</div>
+        <div class="outfit-cost">
+          🥟 400 Modaks
+        </div>
+      </div></div>
+        <button id="btn-close-outfits" class="btn-festive secondary" fdprocessedid="a6qpgd">CLOSE</button>
+      </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="menu-settings-modal" class="modal-overlay">
+      <div class="menu-card">
+        <h2 class="modal-title">SETTINGS</h2>
+        <div class="modal-content">
+          <div class="settings-row">
+            <span>Music Volume (BGM)</span>
+            <input type="range" id="setting-bgm" min="0" max="1" step="0.05" value="0.7" class="settings-slider">
+          </div>
+          <div class="settings-row">
+            <span>SFX Volume</span>
+            <input type="range" id="setting-sfx" min="0" max="1" step="0.05" value="0.8" class="settings-slider">
+          </div>
+          <div class="settings-row">
+            <span>Touch Controls</span>
+            <input type="checkbox" id="setting-touch" style="transform: scale(1.4);">
+          </div>
+          <div class="settings-row">
+            <span>Reset High Score</span>
+            <button id="btn-reset-data" class="btn-festive secondary" style="padding: 4px 10px; font-size: 12px;" fdprocessedid="2xrj9f">RESET</button>
+          </div>
+        </div>
+        <button id="btn-close-settings" class="btn-festive secondary" fdprocessedid="48u6mf">CLOSE</button>
+      </div>
+    </div>
+
+    <!-- HIGH SCORES MODAL -->
+    <div id="menu-highscores-modal" class="modal-overlay">
+      <div class="menu-card">
+        <h2 class="modal-title">HALL OF GLORY</h2>
+        <div class="modal-content" style="text-align: center;">
+          <p style="font-size: 16px; color: #fff;">All-Time Best Run</p>
+          <p id="hs-score" style="font-family: 'Cinzel', serif; font-size: 38px; color: var(--primary-gold); font-weight: 900; margin: 8px 0;">0</p>
+          <div style="display: flex; justify-content: space-around; margin-top: 16px;">
+            <div>
+              <p style="color: var(--text-gold); font-size: 12px;">Max Distance</p>
+              <p id="hs-distance" style="font-size: 20px; font-weight: 700; color: #fff;">0m</p>
+            </div>
+            <div>
+              <p style="color: var(--text-gold); font-size: 12px;">Total Modaks</p>
+              <p id="hs-modaks" style="font-size: 20px; font-weight: 700; color: #fff;">0</p>
+            </div>
+          </div>
+        </div>
+        <button id="btn-close-highscores" class="btn-festive secondary" fdprocessedid="qchvz">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="./Ganesh_ Modak Run - 3D Endless Runner_files/three.min.js.download"></script>
+  <script src="./Ganesh_ Modak Run - 3D Endless Runner_files/audio.js.download"></script>
+  <script src="./Ganesh_ Modak Run - 3D Endless Runner_files/particles.js.download"></script>
+  <script src="./Ganesh_ Modak Run - 3D Endless Runner_files/models.js.download"></script>
+  <script src="./Ganesh_ Modak Run - 3D Endless Runner_files/track.js.download"></script>
+  <script src="./Ganesh_ Modak Run - 3D Endless Runner_files/player.js.download"></script>
+  <script src="./Ganesh_ Modak Run - 3D Endless Runner_files/chaser.js.download"></script>
+  <script src="./Ganesh_ Modak Run - 3D Endless Runner_files/abilities.js.download"></script>
+  <script src="./Ganesh_ Modak Run - 3D Endless Runner_files/ui.js.download"></script>
+  <script src="./Ganesh_ Modak Run - 3D Endless Runner_files/game.js.download"></script>
+
+<span id="PING_CONTENT_PUSH_NOTIFICATION" style="display: none;"></span><span id="PING_IFRAME_FORM_DETECTION" style="display: none;"></span></body></html>
